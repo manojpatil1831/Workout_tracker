@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block title %}Workout Log{% endblock %}
+{% block styles %}
+<style>
+    .workout-log {
+        margin-top: 20px;
+    }
+
+    .modal-dialog {
+        max-width: 800px;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-content {
+        border-radius: 10px;
+    }
+
+    .btn {
+        margin-right: 5px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container workout-log">
+    <h1 class="text-center mb-5">WORKOUT LOG</h1>
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Date</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for workout in workouts %}
+            <tr>
+                <th scope="row">{{ loop.index }}</th>
+                <td>{{ workout.date.strftime("%b %d, %Y %I:%M %p") }}</td>
+                <td>
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#viewModal{{ workout.id }}">View</button>
+                        <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#editModal{{ workout.id }}">Edit</button>
+                        <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteModal{{ workout.id }}">Delete</button>
+                    </div>
+                </td>
+            </tr>
+            <!-- View Modal -->
+            <div class="modal fade" id="viewModal{{ workout.id }}" tabindex="-1" aria-labelledby="viewModalLabel{{ workout.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="viewModalLabel{{ workout.id }}">View Workout</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="list-group">
+                                {% for exercise in workout.exercises %}
+                                <li class="list-group-item">
+                                    <h5>{{ exercise.exercise.name }}</h5>
+                                    <ul class="list-group">
+                                        {% for set in exercise.sets %}
+                                        <li class="list-group-item">{{ set.weight }} kg x {{ set.reps }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editModal{{ workout.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ workout.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel{{ workout.id }}">Edit Workout</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="POST" action="{{ url_for('edit') }}" id="editForm{{ workout.id }}">
+                                <input type="hidden" name="workout_id" value="{{ workout.id }}">
+                                {% for exercise in workout.exercises %}
+                                <div class="mb-3">
+                                    <label class="form-label">Exercise:</label>
+                                    <input type="text" readonly class="form-control-plaintext" value="{{ exercise.exercise.name }}">
+                                </div>
+                                <div class="row mb-3">
+                                    {% for set in exercise.sets %}
+                                    <div class="col-md-4">
+                                        <label class="form-label">Set {{ loop.index }}</label>
+                                        <input type="number" class="form-control" name="weight{{ set.id }}" value="{{ set.weight }}" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Weight (kg):</label>
+                                        <input type="number" class="form-control" name="reps{{ set.id }}" value="{{ set.reps }}" required>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endfor %}
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteModal{{ workout.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ workout.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel{{ workout.id }}">Delete Workout</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete this workout?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <form method="POST" action="{{ url_for('delete') }}">
+                                <input type="hidden" name="workout_id" value="{{ workout.id }}">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure only numeric values for weight and reps fields
+        var numericFields = document.querySelectorAll('.form-control[type="number"]');
+
+        numericFields.forEach(function(field) {
+            field.addEventListener('input', function() {
+                var value = this.value.trim();
+                if (value !== '' && !/^\d+$/.test(value)) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}REGISTER{% endblock %}
+{% block content %} 
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h2 class="card-title text-center mb-4">REGISTRATION</h2>
+          <form class="needs-validation" method="POST" action="{{ url_for('register') }}" id="registerForm" novalidate>
+            <div class="mb-3">
+              <label for="firstName" class="form-label">First name</label>
+              <input type="text" class="form-control" name="firstname" id="firstName" placeholder="Enter first name" pattern="[a-zA-Z]+" required>
+              <div class="invalid-feedback">
+                Please enter your first name using alphabetical characters only.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="lastName" class="form-label">Last name</label>
+              <input type="text" class="form-control" name="lastname" id="lastName" placeholder="Enter last name" pattern="[a-zA-Z]+" required>
+              <div class="invalid-feedback">
+                Please enter your last name using alphabetical characters only.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" name="username" id="username" placeholder="Choose a username" pattern="^(?=.*[a-zA-Z])[a-zA-Z0-9]+$" required>
+              <div class="invalid-feedback">
+                Username must contain only alphanumeric characters.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" name="password" id="password" placeholder="Choose a password" required>
+              <div class="invalid-feedback">
+                Password is required.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">Confirm Password</label>
+              <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" placeholder="Confirm password" required>
+              <div class="invalid-feedback">
+                Please confirm your password.
+              </div>
+            </div>
+
+            <div class="text-center">
+              <button class="btn btn-primary btn-block" type="submit">Register</button>
+            </div>
+
+            <div class="mt-3 text-center">
+              Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Username validation
+  document.getElementById('username').addEventListener('input', function() {
+    var username = this.value;
+    var pattern = /^[a-zA-Z0-9]+$/;
+    var isValid = pattern.test(username);
+
+    if (!isValid) {
+      this.classList.add('is-invalid');
+    } else {
+      this.classList.remove('is-invalid');
+    }
+  });
+
+  // First name and Last name validation
+  document.getElementById('firstName').addEventListener('input', function() {
+    var firstName = this.value;
+    var pattern = /^[a-zA-Z]+$/;
+    var isValid = pattern.test(firstName);
+
+    if (!isValid) {
+      this.classList.add('is-invalid');
+    } else {
+      this.classList.remove('is-invalid');
+    }
+  });
+
+  document.getElementById('lastName').addEventListener('input', function() {
+    var lastName = this.value;
+    var pattern = /^[a-zA-Z]+$/;
+    var isValid = pattern.test(lastName);
+
+    if (!isValid) {
+      this.classList.add('is-invalid');
+    } else {
+      this.classList.remove('is-invalid');
+    }
+  });
+
+  // Form validation using Bootstrap's built-in validation
+  (function() {
+    'use strict';
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms)
+      .forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+  })();
+</script>
+{% endblock %}

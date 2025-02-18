@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}LOGIN{% endblock %}
+{% block content %}
+<div class="container py-5 mb-5">
+  <h1 class="mb-5" style="text-align: center">LOGIN</h1>
+  <div class="row py-4">
+    <div class="col-md-8 order-md-2">
+      <form class="needs-validation" method="POST" action="{{ url_for('login') }}" id="loginForm" novalidate>
+        <div class="mb-3">
+          <label for="username">Username</label>
+          <input type="text" class="form-control" name="username" id="username" placeholder="" required>
+          <div class="invalid-feedback">
+            Username must contain only alphabetic characters and/or numerical digits.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="password">Password<span class="text-muted"></span></label>
+          <input type="password" class="form-control" name="password" id="password" placeholder="" required>
+          <div class="invalid-feedback">
+            Password is required.
+          </div>
+          
+        </div>
+
+        <div class="mb-3">
+          <h6>Do not have an account?<a class="btn btn-sm btn-secondary " style="width: auto;" href="{{ url_for('register') }}">Register</a></h6>          
+        </div>
+        
+        <div class="text-center">
+          <button class="btn btn-outline-success btn-shadow btn-lg btn-block" type="submit" id="loginBtn"> Login </button>
+        </div>
+        
+      </form>
+    </div>
+    <div class="col-md-2 order-md-1"></div>
+    <div class="col-md-2 order-md-3"></div>
+  </div>
+</div>
+
+<script>
+  // Username validation
+  document.getElementById('username').addEventListener('input', function() {
+    var username = this.value;
+    var pattern = /^[a-zA-Z0-9]+$/; // Adjusted pattern
+    var isValid = pattern.test(username);
+
+    if (!isValid) {
+      this.classList.add('is-invalid');
+    } else {
+      this.classList.remove('is-invalid');
+    }
+  });
+
+  // Form validation using Bootstrap's built-in validation
+  (function() {
+    'use strict';
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms)
+      .forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+  })();
+</script>
+{% endblock %}

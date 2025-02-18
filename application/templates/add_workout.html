@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% block title %}Add Workout{% endblock %}
+{% block styles %}
+<style>
+    .bg-image {
+        background-image: url("C:/Users/91636/OneDrive/Desktop/download (1).jpeg"); /* Adjust path to your JPEG image */
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        min-height: 100vh;
+        position: relative; /* Ensure relative positioning for overlay */
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* Adjust transparency as needed */
+    }
+
+    .quote {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        text-align: center;
+        font-size: 24px;
+        font-style: italic;
+        z-index: 1; /* Ensure quote appears above overlay */
+    }
+
+    .workout-plan {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        font-family: Arial, sans-serif;
+        color: #333;
+        position: relative; /* Ensure content appears above background */
+        z-index: 2; /* Ensure content appears above overlay and quote */
+    }
+
+    .workout-plan h1 {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .workout-plan h2 {
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 15px;
+        margin-bottom: 5px;
+        color: #555;
+    }
+
+    .workout-plan ul {
+        list-style-type: none;
+        padding-left: 20px;
+        color: #666;
+    }
+
+    .workout-plan li {
+        margin-bottom: 8px;
+    }
+
+    .workout-plan h3 {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 15px;
+        margin-bottom: 5px;
+        color: #555;
+    }
+
+    .workout-plan p {
+        margin-bottom: 10px;
+        color: #777;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="bg-image">
+    <div class="overlay"></div>
+    
+    <!-- Motivational quote -->
+    <div class="quote">
+        <p>"Success usually comes to those who are too busy to be looking for it." - Henry David Thoreau</p>
+    </div>
+
+    <!-- Workout form -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <p><a href="#" id="toggleWorkoutPlan">Show/Hide Expert Workout Plan</a></p>
+                
+                <div id="workoutPlan" class="workout-plan" style="display: none;">
+                    <!-- Expert Workout Plan content -->
+                    <h1>Expert Workout Plan</h1>
+                    <h2>Day 1: Upper Body Strength</h2>
+                    <ul>
+                        <li><strong>Pull-Ups</strong><br>
+                            Sets: 4, Reps: 8-10, Rest: 60s</li>
+                        <li><strong>Push-Ups</strong><br>
+                            Sets: 4, Reps: 12-15, Rest: 60s</li>
+                        <li><strong>Bicep Curls</strong><br>
+                            Sets: 3, Reps: 10-12, Weight: Moderate, Rest: 45-60s</li>
+                        <li><strong>Tricep Dips</strong><br>
+                            Sets: 3, Reps: 12-15, Rest: 45-60s</li>
+                    </ul>
+                    <!-- Other days and exercises omitted for brevity -->
+
+                    <h3>Notes:</h3>
+                    <ul>
+                        <li>Progression: Increase weights gradually.</li>
+                        <li>Warm-Up: Always warm up.</li>
+                        <li>Cool Down: Finish with stretches.</li>
+                    </ul>
+                </div>
+
+                <!-- Workout form -->
+                <form method="POST" action="{{ url_for('add_workout') }}" id="workout">
+                    <div class="form-group">
+                        <label for="date">Date:</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Time:</label>
+                        <input type="time" class="form-control" id="time" name="time" required>
+                    </div>
+                    <select name="exercise1" class="form-select" form="workout" required>
+                        <option selected disabled value="">Select an exercise</option>
+                        {% for exercise in exercises %}
+                        <option value="{{ exercise.id }}">{{ exercise.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-group" id="exercise1">
+                        <div class="row">
+                            <div class="col">
+                                <input type="number" class="form-control" name="weight1" placeholder="Weight" required>
+                            </div>
+                            <div class="col">
+                                <input type="number" class="form-control" name="reps1" placeholder="Repetitions" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-info addSet" exercise="1">Add Set</button>
+                    <button type="button" id="addExercise" class="btn btn-primary">Add Exercise</button>
+                    <input type="hidden" name="exercise_count" value="1">
+                    <button type="submit" class="btn btn-success btn-block">Add Workout</button>
+                </form>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.1/underscore-min.js"></script>
+
+<script type="text/html" id="exercise_template">
+    <select name="exercise<%= exercise_num %>" class="form-select" form="workout" required>
+        <option selected disabled value="">Select an exercise</option>
+        {% for exercise in exercises %}
+        <option value="{{ exercise.id }}">{{ exercise.name }}</option>
+        {% endfor %}
+    </select>
+    <div class="form-group" id="exercise<%= exercise_num %>">
+    </div>
+    <button type="button" class="btn btn-info addSet" exercise="<%= exercise_num %>">Add Set</button>
+</script>
+
+<script type="text/html" id="set_template">
+    <div class="row">
+        <div class="col">
+            <input type="number" class="form-control" name="weight<%= exercise_num %>" placeholder="Weight" required>
+        </div>
+        <div class="col">
+            <input type="number" class="form-control" name="reps<%= exercise_num %>" placeholder="Repetitions" required>
+        </div>
+    </div>
+</script>
+
+<script>
+$(document).ready(function() {
+    var exercise_template = _.template($("#exercise_template").html());
+    var set_template = _.template($("#set_template").html());
+
+    // Toggle Workout Plan functionality
+    $("#toggleWorkoutPlan").on('click', function(e) {
+        e.preventDefault();
+        $("#workoutPlan").slideToggle();
+    });
+
+    // Add Exercise functionality
+    $("#addExercise").on('click', function() {
+        var exercise_num = Number($("[name=exercise_count]").val()) + 1;
+        $("[name=exercise_count]").val(exercise_num);
+
+        var exercise_compiled = exercise_template({exercise_num: exercise_num});
+        var set_compiled = set_template({exercise_num: exercise_num});
+
+        // Insert the exercise template before the addExercise button
+        $("#addExercise").before(exercise_compiled);
+
+        // Append the set template to the newly created exercise div
+        $("#exercise" + exercise_num).append(set_compiled);
+    });
+
+    // Add Set functionality
+    $(document).on('click', '.addSet', function() {
+        var exercise_num = Number($(this).attr("exercise"));
+        var set_compiled = set_template({exercise_num: exercise_num});
+        $("#exercise" + exercise_num).append(set_compiled);
+    });
+});
+</script>
+{% endblock %}
